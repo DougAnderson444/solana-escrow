@@ -23,7 +23,10 @@ impl IsInitialized for Escrow {
 }
 
 impl Pack for Escrow {
-    const LEN: usize = 105;
+    // the escrow's length:
+    const LEN: usize = 105; // we can see how to calculate the length of the struct by adding the sizes of the individual data types: 1 (bool) + 3 * 32 (Pubkey) + 1 * 8 (u64) = 105
+    
+    // static constructor function returning a new instance of an escrow struct
     fn unpack_from_slice(src: &[u8]) -> Result<Self, ProgramError> {
         let src = array_ref![src, 0, Escrow::LEN];
         let (
@@ -50,6 +53,9 @@ impl Pack for Escrow {
         })
     }
 
+    // Escrow::pack is a default function which internally calls our pack_into_slice function
+    // we already have an instance of an Escrow struct
+    // now serialize it into the given dst slice
     fn pack_into_slice(&self, dst: &mut [u8]) {
         let dst = array_mut_ref![dst, 0, Escrow::LEN];
         let (
@@ -75,4 +81,10 @@ impl Pack for Escrow {
             .copy_from_slice(initializer_token_to_receive_account_pubkey.as_ref());
         *expected_amount_dst = expected_amount.to_le_bytes();
     }
+
+    // Note:
+    // unpack_unchecked is a function we didn't define here
+    // since traits can have default functions that don't have to be overridden 
+    // unpack_unchecked is a Pack default function 
+    // https://docs.rs/solana-program/1.7.0/src/solana_program/program_pack.rs.html#50
 }
